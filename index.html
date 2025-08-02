@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixels - Coding Club</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js for interactivity -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <!-- Three.js for 3D animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <!-- Supabase SDK -->
+    <script type="module">
+        // In your main index.html file
+
+        // Import the Supabase client library
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+        // IMPORTANT: Replace with your Project URL and anon key from Supabase
+        const supabaseUrl = 'https://bkkubmgzawnwfgkcvflg.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJra3VibWd6YXdud2Zna2N2ZmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwNTM5ODMsImV4cCI6MjA2OTYyOTk4M30.9qNoXuRx4BS8mbU_mX-xDjFcWA7n6o-ejen72DYO4dg'
+        const supabase = createClient(supabaseUrl, supabaseKey)
+
+        // Make Supabase client available to Alpine.js
+        window.supabase = supabase;
+    </script>
+
+
+    <style>
+        /* Custom styles for a polished look */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* New Gradient Background */
+            background: linear-gradient(180deg, #020617 0%, #0f172a 50%, #020617 100%);
+            color: #e2e8f0;
+            overflow-x: hidden;
+            opacity: 0; /* Start hidden for intro animation */
+            animation: body-fade-in 1.5s 0.5s forwards;
+        }
+
+        @keyframes body-fade-in {
+            to { opacity: 1; }
+        }
+
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+        
+        /* 3D Hero Background Canvas */
+        #hero-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1; /* Behind content and header */
+        }
+
+        main {
+            position: relative;
+            z-index: 10; /* Content above canvas */
+        }
+        
+        /* Name reveal animation */
+        .hero-title, .hero-subtitle {
+            animation: fade-in-up 1s both;
+        }
+        .hero-title { 
+            animation: fade-in-up 1s 1s both, pulse-glow 4s ease-in-out 2s infinite;
+        }
+        .hero-subtitle { animation-delay: 1.2s; }
+
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                text-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+            }
+            50% {
+                text-shadow: 0 0 50px rgba(59, 130, 246, 0.7);
+            }
+        }
+        
+        /* Scroll reveal animation */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px); /* Increased for more noticeable effect */
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Glassmorphism effect for cards */
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.5); /* Slightly more opaque */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .interactive-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .interactive-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Team circle styling */
+        .team-image {
+            filter: grayscale(100%);
+            transition: filter 0.4s ease-in-out, transform 0.3s ease;
+        }
+        .team-image:hover {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+        
+        /* Glowing Beam Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 10px;
+            border: 3px solid #020617;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+        }
+         ::-webkit-scrollbar-thumb:hover {
+            background-color: #60a5fa;
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.9);
+        }
+
+        /* Notification panel scrollbar */
+        .notification-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        .notification-panel::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .notification-panel::-webkit-scrollbar-thumb {
+            background-color: #3b82f6;
+            border-radius: 10px;
+        }
+
+    </style>
+</head>
+<body 
+    x-data="pageController()" 
+    x-init="initPage()"
+    @scroll.window="
+        const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+        scrollProgress = Math.min(1, window.scrollY / (totalHeight * 0.2));
+    " 
+    @keydown.escape.window="modalOpen = false; updatesOpen = false"
+    @keydown.down.prevent="window.scrollBy({ top: window.innerHeight * 0.8, behavior: 'smooth' })"
+    @keydown.up.prevent="window.scrollBy({ top: -window.innerHeight * 0.8, behavior: 'smooth' })"
+>
+    <canvas id="hero-canvas"></canvas>
+
+    <!-- Header -->
+    <header 
+        x-show="introDone"
+        x-transition:enter="transition ease-out duration-500"
+        x-transition:enter-start="opacity-0 scale-90"
+        x-transition:enter-end="opacity-100 scale-100"
+        class="fixed top-8 inset-x-0 z-50"
+    >
+        <nav 
+            class="glass-effect rounded-full transition-all duration-500 ease-in-out mx-auto"
+            :style="`width: min(${280 + scrollProgress * 420}px, 95vw);`"
+        >
+            <div class="w-full mx-auto px-4 sm:px-6 py-3 flex items-center transition-all duration-500"
+                 :class="scrollProgress > 0.1 ? 'justify-between' : 'justify-center'">
+                
+                <a href="#" class="text-xl font-bold text-white font-outfit transition-all duration-500 whitespace-nowrap"
+                   :class="scrollProgress > 0.1 ? 'opacity-100' : 'opacity-0 -translate-x-4 pointer-events-none'">
+                    Pixels<span class="text-red-500">.</span>
+                </a>
+
+                <!-- Adjusted spacing for links -->
+                <div class="flex items-center space-x-1 sm:space-x-2">
+                    <a href="#about" class="text-slate-300 hover:text-blue-500 transition-colors duration-300 px-1 sm:px-2 text-xs sm:text-sm whitespace-nowrap">About</a>
+                    <a href="#events" class="text-slate-300 hover:text-blue-500 transition-colors duration-300 px-1 sm:px-2 text-xs sm:text-sm whitespace-nowrap">Events</a>
+                    <a href="#team" class="text-slate-300 hover:text-blue-500 transition-colors duration-300 px-1 sm:px-2 text-xs sm:text-sm whitespace-nowrap">Team</a>
+                    <a href="#contact" class="text-slate-300 hover:text-blue-500 transition-colors duration-300 px-1 sm:px-2 text-xs sm:text-sm whitespace-nowrap">Contact</a>
+                </div>
+
+                <a href="#contact" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-1 rounded-full transition-all duration-500 whitespace-nowrap text-sm"
+                   :class="scrollProgress > 0.5 ? 'opacity-100' : 'opacity-0 translate-x-4 pointer-events-none'">
+                    Join Us
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative h-screen flex items-center justify-center overflow-hidden">
+            <div class="relative z-10 text-center px-4">
+                <h1 class="hero-title font-outfit text-7xl md:text-9xl font-black text-white uppercase tracking-[1rem] md:tracking-[2rem]">
+                    Pixels
+                </h1>
+                <p class="hero-subtitle text-slate-400 mt-4 text-lg md:text-xl tracking-widest">
+                    Crafting the future, one line of code at a time.
+                </p>
+            </div>
+        </section>
+
+        <div class="relative z-10 bg-gradient-to-b from-transparent via-slate-900 to-slate-900">
+            <!-- About Us Section -->
+            <section id="about" class="py-20 md:py-32">
+                <div class="container mx-auto px-6 text-center reveal">
+                    <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 font-outfit">Who We Are</h2>
+                    <div class="w-24 h-1 bg-blue-500 mx-auto mb-12"></div>
+                    <p class="text-slate-400 text-lg max-w-4xl mx-auto">Pixels is a dynamic community of student developers, designers, and tech enthusiasts. We believe in the power of "collage coding" – blending diverse skills and technologies to create innovative projects. Our mission is to foster a supportive environment for learning, building, and sharing a passion for all things digital. From web development to machine learning, we are the canvas for your technological artistry.</p>
+                </div>
+            </section>
+
+            <!-- Events Section -->
+            <section id="events" class="py-20 md:py-32 bg-black bg-opacity-20">
+                <div class="container mx-auto px-6">
+                    <div class="text-center mb-16 reveal">
+                        <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 font-outfit">Our Canvas of Activities</h2>
+                        <div class="w-24 h-1 bg-blue-500 mx-auto"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div class="glass-effect interactive-card p-8 rounded-2xl text-center reveal" style="transition-delay: 0ms"><div class="text-blue-500 mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg></div><h3 class="text-2xl font-bold text-white mb-3">Workshops</h3><p class="text-slate-400">Hands-on sessions on the latest technologies like Web Dev, AI/ML, and Blockchain.</p></div>
+                        <div class="glass-effect interactive-card p-8 rounded-2xl text-center reveal" style="transition-delay: 100ms"><div class="text-blue-500 mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v11.494m-9-5.747h18" /></svg></div><h3 class="text-2xl font-bold text-white mb-3">PixelHacks</h3><p class="text-slate-400">Our flagship annual hackathon where innovation meets competition.</p></div>
+                        <div class="glass-effect interactive-card p-8 rounded-2xl text-center reveal" style="transition-delay: 200ms"><div class="text-blue-500 mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg></div><h3 class="text-2xl font-bold text-white mb-3">Expert Talks</h3><p class="text-slate-400">Insightful lectures from industry leaders and tech pioneers.</p></div>
+                        <div class="glass-effect interactive-card p-8 rounded-2xl text-center reveal" style="transition-delay: 300ms"><div class="text-blue-500 mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v4.512l-4 2-4-2V5L8 4z" /></svg></div><h3 class="text-2xl font-bold text-white mb-3">Club Projects</h3><p class="text-slate-400">Collaborate on real-world projects to build your portfolio and skills.</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Team Section -->
+            <section id="team" class="py-20 md:py-32">
+                <div class="container mx-auto px-6 reveal">
+                    <div class="text-center mb-16"><h2 class="text-4xl md:text-5xl font-bold text-white mb-6 font-outfit">The Architects of Pixels</h2><div class="w-24 h-1 bg-blue-500 mx-auto"></div></div>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
+                        <div class="text-center"><button @click="modalOpen = true; activeModal = 'vaibhav'" class="block w-full text-center group"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Vaibhav" class="team-image rounded-full w-32 h-32 md:w-40 md:h-40 object-cover border-4 border-slate-700 mx-auto"><h4 class="text-xl font-bold text-white mt-4">Vaibhav</h4><p class="text-slate-400">Co-Founder</p></button></div>
+                        <div class="text-center order-first md:order-none"><button @click="modalOpen = true; activeModal = 'sagar'" class="block w-full text-center group"><img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Sagar" class="team-image rounded-full w-40 h-40 md:w-52 md:h-52 object-cover border-4 border-blue-500 mx-auto cursor-pointer"><h4 class="text-2xl font-bold text-white mt-4">Sagar</h4><p class="text-blue-400">President & Lead Dev</p></button></div>
+                        <div class="text-center"><button @click="modalOpen = true; activeModal = 'sarthak'" class="block w-full text-center group"><img src="https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Sarthak" class="team-image rounded-full w-32 h-32 md:w-40 md:h-40 object-cover border-4 border-slate-700 mx-auto"><h4 class="text-xl font-bold text-white mt-4">Sarthak</h4><p class="text-slate-400">Co-Founder</p></button></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="py-20 md:py-32 bg-black bg-opacity-20">
+                <div class="container mx-auto px-6 reveal"><div class="text-center mb-16"><h2 class="text-4xl md:text-5xl font-bold text-white mb-6 font-outfit">Become a Pixel</h2><div class="w-24 h-1 bg-blue-500 mx-auto"></div><p class="text-slate-400 text-lg max-w-2xl mx-auto mt-6">Have questions or want to join our community? Reach out to us!</p></div><div class="max-w-xl mx-auto glass-effect rounded-2xl p-8">
+                    <form id="contact-form" @submit.prevent="submitForm($event)">
+                        <div class="mb-5"><label for="name" class="block mb-2 text-sm font-medium text-slate-300">Full Name</label><input type="text" id="name" name="name" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="John Doe" required></div>
+                        <div class="mb-5"><label for="email" class="block mb-2 text-sm font-medium text-slate-300">Email Address</label><input type="email" id="email" name="email" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="you@example.com" required></div>
+                        <div class="mb-5"><label for="message" class="block mb-2 text-sm font-medium text-slate-300">Your Message</label><textarea id="message" name="message" rows="4" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Your message..."></textarea></div>
+                        <button type="submit" :disabled="formLoading" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors duration-300 disabled:bg-slate-600 flex items-center justify-center">
+                            <span x-show="!formLoading">Send Message</span>
+                            <svg x-show="formLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </button>
+                    </form>
+                    <div x-show="formMessage" x-text="formMessage" :class="{ 'text-green-400': formStatus === 'success', 'text-red-400': formStatus === 'error' }" class="mt-4 text-center text-sm" x-transition></div>
+                </div></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 bg-gray-900 border-t border-slate-800"><div class="container mx-auto px-6 py-8 text-center text-slate-400"><p>&copy; 2025 Pixels Coding Club. All Rights Reserved.</p></div></footer>
+
+    <!-- Modals Container -->
+    <div x-show="modalOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4" @click.self="modalOpen = false" style="display: none;">
+        <!-- Modal Template -->
+        <template x-for="member in ['sagar', 'vaibhav', 'sarthak']">
+            <div x-show="activeModal === member" x-transition class="relative glass-effect rounded-2xl w-full max-w-lg mx-auto overflow-hidden border border-slate-700">
+                <div class="p-8 text-white">
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        <img :src="{sagar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', vaibhav: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80', sarthak: 'https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80'}[member]" :alt="member" class="w-32 h-32 rounded-full object-cover flex-shrink-0" :class="member === 'sagar' ? 'border-4 border-blue-500' : 'border-4 border-slate-500'">
+                        <div>
+                            <h3 class="text-3xl font-bold font-outfit" x-text="member.charAt(0).toUpperCase() + member.slice(1)"></h3>
+                            <p class="text-lg" :class="member === 'sagar' ? 'text-blue-400' : 'text-slate-400'" x-text="{sagar: 'President & Lead Developer', vaibhav: 'Co-Founder & Strategist', sarthak: 'Co-Founder & Community Lead'}[member]"></p>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-slate-700">
+                        <p class="text-slate-300" x-text="{sagar: 'Sagar is the driving force behind Pixels. With a deep passion for full-stack development and a knack for leadership, he guides the club\'s technical direction and mentors aspiring developers.', vaibhav: 'Vaibhav provides the strategic vision for Pixels. With a keen eye for emerging trends and a talent for organization, he ensures the club stays ahead of the curve.', sarthak: 'Sarthak is the heart of the Pixels community. He excels at bringing people together, organizing engaging events, and ensuring every member feels welcome and supported.'}[member]"></p>
+                    </div>
+                    <div class="mt-6 flex justify-center items-center gap-4 text-slate-400">
+                        <!-- Website Icon (Sagar only) -->
+                        <template x-if="member === 'sagar'">
+                             <a href="#" class="hover:text-blue-500 transition-colors">
+                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.536a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                            </a>
+                        </template>
+                        <a href="#" class="hover:text-blue-500 transition-colors"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12.013c0 4.418 2.865 8.167 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12.013C22 6.477 17.523 2 12 2z" clip-rule="evenodd" /></svg></a>
+                        <a href="#" class="hover:text-blue-500 transition-colors"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg></a>
+                        <a href="mailto:example@gmail.com" class="hover:text-blue-500 transition-colors"><svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg></a>
+                        <span class="text-sm">+91 12345 67890</span>
+                    </div>
+                </div>
+                <button @click="modalOpen = false" class="absolute top-4 right-4 text-slate-500 hover:text-white transition-colors duration-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+        </template>
+    </div>
+
+     <!-- Updates Button and Panel -->
+    <div class="fixed bottom-8 right-8 z-50">
+        <button @click="updatesOpen = !updatesOpen" class="bg-blue-600 text-white rounded-full p-4 shadow-lg hover:bg-blue-700 transition-transform hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+        </button>
+
+        <div x-show="updatesOpen" 
+             @click.outside="updatesOpen = false"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-4"
+             class="absolute bottom-20 right-0 w-80 sm:w-96 h-[60vh] glass-effect rounded-2xl flex flex-col"
+             style="display: none;">
+            <div class="p-4 border-b border-slate-700">
+                <h3 class="font-bold text-lg text-white">Latest Updates</h3>
+            </div>
+            <div class="flex-grow p-4 overflow-y-auto notification-panel space-y-4">
+                <template x-if="notifications.length === 0">
+                    <p class="text-slate-400 text-center py-8">No new updates yet.</p>
+                </template>
+                <template x-for="notification in notifications" :key="notification.id">
+                    <div class="bg-slate-800/50 p-4 rounded-lg">
+                        <div class="flex items-center mb-2">
+                            <img :src="notification.authorImage" class="w-8 h-8 rounded-full mr-3 object-cover">
+                            <div>
+                                <p class="font-semibold text-white" x-text="notification.author"></p>
+                                <p class="text-xs text-slate-400" x-text="notification.timestamp"></p>
+                            </div>
+                        </div>
+                        <h4 class="font-bold text-blue-400 mb-1" x-text="notification.title"></h4>
+                        <p class="text-slate-300 text-sm mb-3" x-text="notification.message"></p>
+                        <template x-if="notification.imageUrl">
+                            <a :href="notification.linkUrl || '#'" :target="notification.linkUrl ? '_blank' : '_self'">
+                                <img :src="notification.imageUrl" class="rounded-lg w-full h-auto object-cover mt-2">
+                            </a>
+                        </template>
+                         <template x-if="notification.linkUrl && !notification.imageUrl">
+                            <a :href="notification.linkUrl" target="_blank" class="text-blue-400 hover:underline text-sm">
+                                Read More &rarr;
+                            </a>
+                        </template>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function pageController() {
+            return {
+                modalOpen: false,
+                activeModal: '',
+                introDone: false,
+                scrollProgress: 0,
+                formMessage: '',
+                formStatus: '',
+                formLoading: false,
+                updatesOpen: false,
+                notifications: [],
+
+                initPage() {
+                    setTimeout(() => this.introDone = true, 1000);
+                    
+                    const revealElements = document.querySelectorAll('.reveal');
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                            } else {
+                                // This makes the animation re-trigger on scroll up
+                                entry.target.classList.remove('visible');
+                            }
+                        });
+                    }, { threshold: 0.2 });
+                    revealElements.forEach(el => observer.observe(el));
+
+                    // Initialize EmailJS
+                    emailjs.init('RZtRrHHdkP8_1onBh');
+                    
+                    // FIX: Wait for Supabase to be ready before listening for updates
+                    const supabaseReadyCheck = setInterval(() => {
+                        if (window.supabase) {
+                            clearInterval(supabaseReadyCheck);
+                            this.listenForUpdates();
+                        }
+                    }, 100);
+                },
+                
+                listenForUpdates() {
+                    const fetchAndProcess = () => {
+                        // FIX: Check if window.supabase exists before using it
+                        if (window.supabase) {
+                            window.supabase
+                                .from('notifications')
+                                .select('*')
+                                .order('created_at', { ascending: false })
+                                .then(({ data, error }) => {
+                                    if (error) {
+                                        console.error('Error fetching notifications:', error);
+                                    } else {
+                                        this.processNotifications(data);
+                                    }
+                                });
+                        }
+                    };
+
+                    // Fetch initial data
+                    fetchAndProcess();
+
+                    // Listen for real-time changes
+                    if (window.supabase) {
+                        window.supabase
+                            .channel('public:notifications')
+                            .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, payload => {
+                                console.log('Change received!', payload);
+                                // Refetch all notifications to ensure correct order
+                                fetchAndProcess(); 
+                            })
+                            .subscribe();
+                    }
+                },
+                
+                processNotifications(data) {
+                    const authorImages = {
+                        Sagar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&q=80',
+                        Vaibhav: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&q=80',
+                        Sarthak: 'https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&q=80'
+                    };
+                    this.notifications = data.map(notification => ({
+                        ...notification,
+                        authorImage: authorImages[notification.author] || 'https://placehold.co/40x40/1e293b/ffffff?text=P',
+                        // Format timestamp for display
+                        timestamp: new Date(notification.created_at).toLocaleString()
+                    }));
+                },
+
+                submitForm(event) {
+                    this.formLoading = true;
+                    this.formMessage = '';
+                    this.formStatus = '';
+
+                    // IMPORTANT: Replace with your own Service ID and Template ID
+                    const serviceID = 'service_pcxjiai';
+                    const templateID = 'template_d17bfk9';
+
+                    emailjs.sendForm(serviceID, templateID, event.target)
+                        .then(() => {
+                            this.formStatus = 'success';
+                            this.formMessage = 'Your message has been sent successfully!';
+                            event.target.reset();
+                        }, (err) => {
+                            this.formStatus = 'error';
+                            this.formMessage = 'Oops! Something went wrong. Please try again.';
+                            console.error('EmailJS failed...', err);
+                        })
+                        .finally(() => {
+                            this.formLoading = false;
+                        });
+                }
+            }
+        }
+
+        window.onload = function() {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const canvas = document.getElementById('hero-canvas');
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const mouse = new THREE.Vector2();
+            window.addEventListener('mousemove', (event) => {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            const particlesCount = 7000;
+            const positions = new Float32Array(particlesCount * 3);
+            for (let i = 0; i < particlesCount; i++) {
+                positions[i * 3 + 0] = (Math.random() - 0.5) * 15;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 15;
+            }
+            const particlesGeometry = new THREE.BufferGeometry();
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0x3b82f6,
+                size: 0.02,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                opacity: 0.6,
+                depthWrite: false
+            });
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+            
+            camera.position.z = 5;
+
+            const clock = new THREE.Clock();
+            const animate = () => {
+                const elapsedTime = clock.getElapsedTime();
+                particles.rotation.y = elapsedTime * 0.05;
+                particles.rotation.x = elapsedTime * 0.02;
+                particles.position.x += (mouse.x * 0.5 - particles.position.x) * 0.02;
+                particles.position.y += (-mouse.y * 0.5 - particles.position.y) * 0.02;
+                camera.lookAt(scene.position);
+                renderer.render(scene, camera);
+                window.requestAnimationFrame(animate);
+            };
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            });
+        };
+    </script>
+</body>
+</html>

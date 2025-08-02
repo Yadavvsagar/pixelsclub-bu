@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixels Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    
+    <!-- Supabase SDK -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+        // IMPORTANT: Replace with your Project URL and anon key from Supabase
+        const supabaseUrl = 'https://bkkubmgzawnwfgkcvflg.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJra3VibWd6YXdud2Zna2N2ZmxnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQwNTM5ODMsImV4cCI6MjA2OTYyOTk4M30.9qNoXuRx4BS8mbU_mX-xDjFcWA7n6o-ejen72DYO4dg'
+        const supabase = createClient(supabaseUrl, supabaseKey)
+
+        // Make Supabase client available to Alpine.js
+        window.supabase = supabase;
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+        }
+        .dropzone-active {
+            border-color: #3b82f6;
+            background-color: #1e293b;
+        }
+    </style>
+</head>
+<body x-data="adminController()" class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- Login Form -->
+    <div x-show="!loggedIn" class="w-full max-w-sm">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-lg">
+            <h1 class="text-2xl font-bold text-center text-white mb-6">Pixels Admin Login</h1>
+            <form @submit.prevent="login()">
+                <div class="mb-4">
+                    <label for="password" class="block text-sm font-medium text-slate-300 mb-2">Password</label>
+                    <input type="password" x-model="password" id="password" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                </div>
+                <p x-show="loginError" class="text-red-400 text-sm mb-4" x-text="loginError"></p>
+                <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div x-show="loggedIn" class="w-full max-w-2xl" style="display: none;">
+        <div class="bg-slate-800 p-8 rounded-2xl shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold text-white">Post a New Update</h1>
+                <button @click="logout()" class="text-sm text-slate-400 hover:text-white">Logout</button>
+            </div>
+            <form @submit.prevent="postUpdate()">
+                <div class="space-y-4">
+                    <div>
+                        <label for="author" class="block text-sm font-medium text-slate-300 mb-2">Author</label>
+                        <select x-model="form.author" id="author" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            <option>Sagar</option>
+                            <option>Vaibhav</option>
+                            <option>Sarthak</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-slate-300 mb-2">Title</label>
+                        <input type="text" x-model="form.title" id="title" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                    </div>
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-slate-300 mb-2">Message</label>
+                        <textarea x-model="form.message" id="message" rows="4" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required></textarea>
+                    </div>
+                    
+                    <!-- Drag and Drop Image Uploader -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Image (Optional)</label>
+                        <div 
+                            @dragover.prevent="isDragging = true"
+                            @dragleave.prevent="isDragging = false"
+                            @drop.prevent="handleDrop($event)"
+                            :class="{'dropzone-active': isDragging}"
+                            class="flex justify-center items-center w-full h-32 px-6 transition bg-slate-900 border-2 border-dashed rounded-lg border-slate-700">
+                            <div class="text-center" x-show="!imagePreviewUrl">
+                                <svg class="w-10 h-10 mx-auto text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <p class="mt-2 text-sm text-slate-400">Drag and drop an image here</p>
+                            </div>
+                            <div x-show="imagePreviewUrl" class="relative">
+                                <img :src="imagePreviewUrl" class="rounded-lg max-h-28">
+                            </div>
+                        </div>
+                        <!-- Upload Progress -->
+                        <div x-show="uploadProgress > 0 && uploadProgress < 100" class="mt-2">
+                            <p class="text-sm text-slate-400 mb-1">Uploading...</p>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div class="bg-blue-600 h-2.5 rounded-full" :style="`width: ${uploadProgress}%`"></div>
+                            </div>
+                        </div>
+                         <!-- Uploaded Message -->
+                        <div x-show="uploadProgress === 100" class="mt-2">
+                            <p class="text-sm text-green-400">Image uploaded successfully!</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="linkUrl" class="block text-sm font-medium text-slate-300 mb-2">Link URL (Optional)</label>
+                        <input type="url" x-model="form.linkUrl" id="linkUrl" class="bg-slate-900 border border-slate-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button type="submit" :disabled="loading" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center flex items-center justify-center disabled:bg-slate-600">
+                        <span x-show="!loading">Post Update</span>
+                        <svg x-show="loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    </button>
+                    <p x-show="message" x-text="message" :class="isError ? 'text-red-400' : 'text-green-400'" class="mt-4 text-center text-sm"></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function adminController() {
+            return {
+                loggedIn: false,
+                password: '',
+                loginError: '',
+                loading: false,
+                message: '',
+                isError: false,
+                isDragging: false,
+                uploadProgress: 0,
+                imagePreviewUrl: '', // For instant local preview
+                form: {
+                    author: 'Sagar',
+                    title: '',
+                    message: '',
+                    imageUrl: '', // This will hold the final Supabase URL
+                    linkUrl: ''
+                },
+                init() {
+                    if (sessionStorage.getItem('pixelsAdmin') === 'true') {
+                        this.loggedIn = true;
+                    }
+                },
+                login() {
+                    if (this.password === 'pixels123') {
+                        this.loggedIn = true;
+                        sessionStorage.setItem('pixelsAdmin', 'true');
+                        this.loginError = '';
+                    } else {
+                        this.loginError = 'Incorrect password.';
+                    }
+                },
+                logout() {
+                    this.loggedIn = false;
+                    sessionStorage.removeItem('pixelsAdmin');
+                },
+                handleDrop(e) {
+                    this.isDragging = false;
+                    const file = e.dataTransfer.files[0];
+                    if (!file || !file.type.startsWith('image/')) {
+                        this.message = 'Please drop an image file.';
+                        this.isError = true;
+                        return;
+                    }
+                    // Create a local URL for instant preview
+                    this.imagePreviewUrl = URL.createObjectURL(file);
+                    this.uploadImage(file);
+                },
+                async uploadImage(file) {
+                    this.uploadProgress = 1; // Start progress
+                    this.form.imageUrl = '';
+                    this.message = '';
+                    
+                    const filePath = `public/${Date.now()}_${file.name}`;
+
+                    const { data, error } = await window.supabase
+                        .storage
+                        .from('notification-images') // Your bucket name
+                        .upload(filePath, file, {
+                            cacheControl: '3600',
+                            upsert: true // FIX: Changed from false to true
+                        });
+
+                    if (error) {
+                        console.error("Upload failed:", error);
+                        this.message = 'Image upload failed.';
+                        this.isError = true;
+                        this.uploadProgress = 0;
+                    } else {
+                        // Get the public URL of the uploaded image
+                        const { data: { publicUrl } } = window.supabase
+                            .storage
+                            .from('notification-images')
+                            .getPublicUrl(filePath);
+                        
+                        this.form.imageUrl = publicUrl;
+                        this.uploadProgress = 100;
+                    }
+                },
+                async postUpdate() {
+                    if (this.uploadProgress > 0 && this.uploadProgress < 100) {
+                        this.message = 'Please wait for the image to finish uploading.';
+                        this.isError = true;
+                        return;
+                    }
+                    this.loading = true;
+                    this.message = '';
+                    this.isError = false;
+
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('notifications')
+                            .insert([
+                                { 
+                                    author: this.form.author,
+                                    title: this.form.title,
+                                    message: this.form.message,
+                                    imageUrl: this.form.imageUrl || null, // Use null if empty
+                                    linkUrl: this.form.linkUrl || null,
+                                }
+                            ]);
+
+                        if (error) {
+                            throw error;
+                        }
+
+                        this.message = 'Update posted successfully!';
+                        // Reset form
+                        this.form.title = '';
+                        this.form.message = '';
+                        this.form.imageUrl = '';
+                        this.form.linkUrl = '';
+                        this.uploadProgress = 0;
+                        this.imagePreviewUrl = ''; // Clear the preview
+                    } catch (e) {
+                        this.message = 'Failed to post update. See console for error.';
+                        this.isError = true;
+                        console.error("Error inserting document: ", e);
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
