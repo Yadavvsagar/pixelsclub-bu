@@ -225,7 +225,9 @@
                 <div class="container mx-auto px-6 text-center reveal">
                     <h2 class="text-4xl md:text-5xl font-bold text-white mb-6 font-outfit">Who We Are</h2>
                     <div class="w-24 h-1 bg-blue-500 mx-auto mb-12"></div>
-                    <p class="text-slate-400 text-lg max-w-4xl mx-auto">Pixels is a dynamic community of student developers, designers, and tech enthusiasts. We believe in the power of "collage coding" – blending diverse skills and technologies to create innovative projects. Our mission is to foster a supportive environment for learning, building, and sharing a passion for all things digital. From web development to machine learning, we are the canvas for your technological artistry.</p>
+                    <p class="text-slate-400 text-lg max-w-4xl mx-auto">We are BUIT's hub for student tech talent a community thriving on development, design, and innovation. Our goal is to elevate the college's coding culture by empowering members to collaborate on impactful, industry-aligned projects.
+                    Whether you're passionate about the evergreen world of web development or fascinated by the cutting-edge of Machine Learning and AI, Pixels is your platform. Here, we cultivate a supportive environment where you can learn, build, and transform your skills.</p><br>
+                    <p class="text-slate-400 text-lg max-w-4xl mx-auto">Consider us the interface for your technological artistry.</p>
                 </div>
             </section>
 
@@ -248,9 +250,20 @@
                 <div class="container mx-auto px-6 reveal">
                     <div class="text-center mb-16"><h2 class="text-4xl md:text-5xl font-bold text-white mb-6 font-outfit">The Architects of Pixels</h2><div class="w-24 h-1 bg-blue-500 mx-auto"></div></div>
                     <div class="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
-                        <div class="text-center"><button @click="modalOpen = true; activeModal = 'vaibhav'" class="block w-full text-center group"><img src="https://i.postimg.cc/2StRJL2V/186175573.png" alt="Vaibhav" class="team-image rounded-full w-32 h-32 md:w-40 md:h-40 object-cover border-4 border-slate-700 mx-auto"><h4 class="text-xl font-bold text-white mt-4">Vaibhav</h4><p class="text-slate-400">Co-Founder</p></button></div>
-                        <div class="text-center order-first md:order-none"><button @click="modalOpen = true; activeModal = 'sagar'" class="block w-full text-center group"><img src="https://i.postimg.cc/4NqyZqS4/1736226123365.jpg" alt="Sagar" class="team-image rounded-full w-40 h-40 md:w-52 md:h-52 object-cover border-4 border-blue-500 mx-auto cursor-pointer"><h4 class="text-2xl font-bold text-white mt-4">Sagar</h4><p class="text-blue-400">President & Lead Dev</p></button></div>
-                        <div class="text-center"><button @click="modalOpen = true; activeModal = 'sarthak'" class="block w-full text-center group"><img src="https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Sarthak" class="team-image rounded-full w-32 h-32 md:w-40 md:h-40 object-cover border-4 border-slate-700 mx-auto"><h4 class="text-xl font-bold text-white mt-4">Sarthak</h4><p class="text-slate-400">Co-Founder</p></button></div>
+                        <div class="text-center">
+                            <button @click="modalOpen = true; activeModal = 'sagar'" class="block w-full text-center group">
+                                <img src="https://i.postimg.cc/FFJKqH1Q/Whats-App-Image-2025-08-05-at-02-52-04-34aa2469.jpg" alt="Sagar" class="team-image rounded-full w-32 h-32 md:w-40 md:h-40 object-cover border-4 border-slate-700 mx-auto">
+                                <h4 class="text-xl font-bold text-white mt-4">Sagar</h4>
+                                <p class="text-slate-400">Lead Developer</p>
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <button @click="modalOpen = true; activeModal = 'vaibhav'" class="block w-full text-center group">
+                                <img src="https://i.postimg.cc/Twwktsct/Whats-App-Image-2025-08-05-at-01-48-01-c9a33b48.jpg" alt="Vaibhav" class="team-image rounded-full w-32 h-32 md:w-40 md:h-40 object-cover border-4 border-slate-700 mx-auto">
+                                <h4 class="text-xl font-bold text-white mt-4">Vaibhav</h4>
+                                <p class="text-slate-400">Coordinator</p>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -275,18 +288,18 @@
     <footer class="relative z-10 bg-gray-900 border-t border-slate-800"><div class="container mx-auto px-6 py-8 text-center text-slate-400"><p>&copy; 2025 Pixels Coding Club. All Rights Reserved.</p></div></footer>
 
     <div x-show="modalOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4" @click.self="modalOpen = false" style="display: none;">
-        <template x-for="member in ['sagar', 'vaibhav', 'sarthak']">
+        <template x-for="member in ['sagar', 'vaibhav']">
             <div x-show="activeModal === member" x-transition class="relative glass-effect rounded-2xl w-full max-w-lg mx-auto overflow-hidden border border-slate-700">
                 <div class="p-8 text-white">
                     <div class="flex flex-col sm:flex-row items-center gap-6">
-                        <img :src="{sagar: 'https://i.postimg.cc/4NqyZqS4/1736226123365.jpg', vaibhav: 'https://i.postimg.cc/2StRJL2V/186175573.png', sarthak: 'https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80'}[member]" :alt="member" class="w-32 h-32 rounded-full object-cover flex-shrink-0" :class="member === 'sagar' ? 'border-4 border-blue-500' : 'border-4 border-slate-500'">
+                        <img :src="{sagar: 'https://i.postimg.cc/FFJKqH1Q/Whats-App-Image-2025-08-05-at-02-52-04-34aa2469.jpg', vaibhav: 'https://i.postimg.cc/Twwktsct/Whats-App-Image-2025-08-05-at-01-48-01-c9a33b48.jpg'}[member]" :alt="member" class="w-32 h-32 rounded-full object-cover flex-shrink-0 border-4 border-slate-500">
                         <div>
                             <h3 class="text-3xl font-bold font-outfit" x-text="member.charAt(0).toUpperCase() + member.slice(1)"></h3>
-                            <p class="text-lg" :class="member === 'sagar' ? 'text-blue-400' : 'text-slate-400'" x-text="{sagar: 'President & Lead Developer', vaibhav: 'Co-Founder & Strategist', sarthak: 'Co-Founder & Community Lead'}[member]"></p>
+                            <p class="text-lg text-slate-400" x-text="{sagar: 'Lead Developer', vaibhav: 'Coordinator'}[member]"></p>
                         </div>
                     </div>
                     <div class="mt-6 pt-6 border-t border-slate-700">
-                        <p class="text-slate-300" x-text="{sagar: 'Sagar is the driving force behind Pixels. With a deep passion for full-stack development and a knack for leadership, he guides the club\'s technical direction and mentors aspiring developers.', vaibhav: 'Vaibhav provides the strategic vision for Pixels. With a keen eye for emerging trends and a talent for organization, he ensures the club stays ahead of the curve.', sarthak: 'Sarthak is the heart of the Pixels community. He excels at bringing people together, organizing engaging events, and ensuring every member feels welcome and supported.'}[member]"></p>
+                        <p class="text-slate-300" x-text="{sagar: 'Sagar is the driving force behind Pixels. With a deep passion for full-stack development and a knack for leadership, he guides the club\'s technical direction and mentors aspiring developers.', vaibhav: 'Vaibhav provides the strategic vision for Pixels. With a keen eye for emerging trends and a talent for organization, he ensures the club stays ahead of the curve.'}[member]"></p>
                     </div>
                     <div class="mt-6 flex justify-center items-center gap-4 text-slate-400 flex-wrap">
                         <template x-if="memberLinks[member] && memberLinks[member].website">
@@ -378,7 +391,6 @@
                 updatesOpen: false,
                 notifications: [],
 
-                // UPDATED: Added member links object
                 memberLinks: {
                     sagar: {
                         website: 'https://yadavvsagar.github.io/portfolio/',
@@ -393,13 +405,6 @@
                         linkedin: 'https://www.linkedin.com/in/vaibhav-sharma-a85132303/',
                         email: 'Vaibhavsharma5242@gmail.com',
                         phone: '+91 96172 90776'
-                    },
-                    sarthak: {
-                        website: null,
-                        github: 'https://github.com/sarthak-example',
-                        linkedin: 'https://linkedin.com/in/sarthak-example',
-                        email: 'sarthak.pixels@example.com',
-                        phone: '+91 76543 21098'
                     }
                 },
 
@@ -467,9 +472,8 @@
                 
                 processNotifications(data) {
                     const authorImages = {
-                        Sagar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&q=80',
-                        Vaibhav: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&q=80',
-                        Sarthak: 'https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=80&q=80'
+                        Sagar: 'https://i.postimg.cc/FFJKqH1Q/Whats-App-Image-2025-08-05-at-02-52-04-34aa2469.jpg',
+                        Vaibhav: 'https://i.postimg.cc/Twwktsct/Whats-App-Image-2025-08-05-at-01-48-01-c9a33b48.jpg'
                     };
                     this.notifications = data.map(notification => ({
                         ...notification,
